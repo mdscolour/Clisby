@@ -62,7 +62,7 @@ public:
 
 	void point_assign(double xx, double yy, double zz) { x = xx; y = yy; z = zz; }
 	T dot(GPoint p){ return(x*p.x+y*p.y+z*p.z); }
-	inline T dot(Sphere p);
+	T dot(Sphere p);
 
 	void zero()	{x = 0;y = 0;z = 0;}
 	//void assign(T xx, T yy, T zz) { x = xx; y = yy; z = zz; }
@@ -138,7 +138,6 @@ public:
 	Sphere dot(Sphere v){ return Sphere(row1.dot(v), row2.dot(v), row3.dot(v), v.r, v.k); }
 	Matrix dot(Matrix x){ return Matrix(row1.dot(x.col1()), row1.dot(x.col2()), row1.dot(x.col3()), row2.dot(x.col1()), row2.dot(x.col2()), row2.dot(x.col3()), row3.dot(x.col1()), row3.dot(x.col2()), row3.dot(x.col3())); }
 	//Sphere dot(Sphere v){return GPoint<double>(row1.dot(v),row2.dot(v),row3.dot(v));}
-	void rand();
 };
 
 // 3x3 rotation matrix
@@ -271,7 +270,7 @@ public:
 };
 
 template <class T> 
-inline T GPoint<T>::dot(Sphere p){ return(x*p.x+y*p.y+z*p.z); }
+T GPoint<T>::dot(Sphere p){ return(x*p.x+y*p.y+z*p.z); }
 
 template <class T> 
 inline GPoint<T> GPoint<T>::rotation(OpMatrix* op)
@@ -282,9 +281,4 @@ inline GPoint<T> GPoint<T>::rotation(OpMatrix* op)
 inline void Sphere::euclidean_op(Sphere* p, GPoint<double>* ref, OpMatrix* op)
 {
 	(*this) = op->dot(*p) + (*ref);
-}
-
-void Matrix::rand()
-{
-	*this = RefMatrix().dot(RMatrix());
 }

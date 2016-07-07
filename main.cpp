@@ -7,7 +7,7 @@ so far this is nothing but a copy of the alg. in Clisby's paper
 
 int main(int argc,char *argv[])
 {
-	tree A(8-1);
+	tree A(100-1);
 	A.run();
 
 

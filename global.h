@@ -3,7 +3,10 @@ Global definition everywhere, mainly macro and library
 and will:
 // Define "RNG_NAME" for random number, in linux using drand48(), in windows using rand(),
 **************************************************************************/
-#pragma once
+#ifndef GLOBAL
+#define GLOBAL
+
+
 #define M_PI       3.14159265358979323846
 #include <stdlib.h>
 #include<math.h>
@@ -34,6 +37,5 @@ inline double GetRand()
 #define RNG_NAME GetRand
 #endif
 
-int twopowof(int power){int temp = 1; for(int i=0;i<power;i++) temp*=2; return temp;}
-int factorial(int n){if(n==1|| n==0)return 1;else return n*factorial(n-1);}
 
+#endif
