@@ -258,11 +258,13 @@ bool tree::Intersect( node* lc,node* rc,GPoint<double>& relXe,Matrix& p )
 	ncheck++;
 	if(BoxIntersec(lc->B,rc->B,relXe,p)==false) return false;
 	if(lc->isleaf && rc->isleaf) return true;
+	GPoint<double> tempXe;
 	if(lc->npoint >= rc->npoint)
 	{
 		/* Split the left SAW-tree; compare the SAW-trees which are closest together on the chain first, as
 		they are the most likely to intersect. */
-		if(Intersect(lc->rchild,rc,relXe - lc->lchild->Xe,p)) return true;
+		tempXe = relXe - lc->lchild->Xe;
+		if(Intersect(lc->rchild,rc,tempXe,p)) return true;
 		else return(Intersect(lc->lchild,rc,relXe,p));
 	}
 	else
@@ -270,14 +272,19 @@ bool tree::Intersect( node* lc,node* rc,GPoint<double>& relXe,Matrix& p )
 		/* Split the right SAW-tree; compare the SAW-trees which are closest together on the chain first, as
 		they are the most likely to intersect. */
 		if(Intersect(lc,rc->lchild,relXe,p)) return true;
-		else return(Intersect(lc,rc->rchild,relXe + rc->lchild->Xe,p.dot(rc->p)));
+		else 
+		{
+		  tempXe = relXe + rc->lchild->Xe;
+		  Matrix tempp = p.dot(rc->p);
+		  return(Intersect(lc,rc->rchild,tempXe,tempp));
+		}
 	}
 }
 
-inline bool tree::SphereIntersec( Sphere& a, Sphere& b )
+bool tree::SphereIntersec( Sphere& a, Sphere b )
 {return ((a.center()-b.center()).norm()> (a.r+b.r))? false:true;}
 
-inline bool tree::BoxIntersec( box& b1,box& b2,GPoint<double>& b1Xe,Matrix& p )
+bool tree::BoxIntersec( box& b1,box& b2,GPoint<double>& b1Xe,Matrix& p )
 {
 	if(SphereIntersec(b1.b,p.dot(b2.a)+b1Xe)) return true;
 	if(SphereIntersec(b1.b,p.dot(b2.b)+b1Xe)) return true;
@@ -286,7 +293,7 @@ inline bool tree::BoxIntersec( box& b1,box& b2,GPoint<double>& b1Xe,Matrix& p )
 	return false;
 }
 
-inline Sphere tree::SphereMerge( Sphere& a, Sphere& b )
+Sphere tree::SphereMerge( Sphere& a, Sphere& b )
 {
 	GPoint<double> c = b.center()-a.center();
 	double r = (c.norm()+a.r+b.r)/2.0;
@@ -294,7 +301,7 @@ inline Sphere tree::SphereMerge( Sphere& a, Sphere& b )
 	return Sphere(rc.x, rc.y, rc.z, r, b.k);
 }
 
-inline box tree::BoxMerge( box& b1,box& b2,GPoint<double>& b1Xe,Matrix& p )
+box tree::BoxMerge( box& b1,box& b2,GPoint<double>& b1Xe,Matrix& p )
 {
 	box t; 
 	t.a=SphereMerge(b1.a,b1.b); 
@@ -302,7 +309,7 @@ inline box tree::BoxMerge( box& b1,box& b2,GPoint<double>& b1Xe,Matrix& p )
 	return t;
 }
 
-inline void tree::UpdateNodeData( node* pn )
+void tree::UpdateNodeData( node* pn )
 {
 	pn->B = BoxMerge(pn->lchild->B,pn->rchild->B,pn->lchild->Xe,pn->p);
 	pn->Xe = pn->p.dot(pn->rchild->Xe) + pn->lchild->Xe;

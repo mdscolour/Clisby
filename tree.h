@@ -84,7 +84,7 @@ public:
 
 	Sphere SphereMerge(Sphere& a, Sphere& b);
 
-	bool SphereIntersec(Sphere& a, Sphere& b);
+	bool SphereIntersec(Sphere& a, Sphere b);
 
 	box BoxMerge(box& b1,box& b2,GPoint<double>& b1Xe,Matrix& p);
 

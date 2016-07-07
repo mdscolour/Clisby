@@ -57,8 +57,8 @@ public:
 	GPoint& operator*=(T c){ x *= c; y *= c; z *= c; return *this; }
 	GPoint& operator/=(T c){ x /= c; y /= c; z /= c; return *this; }
 
-	bool operator==(GPoint p){ return((abs(p.x - x)<1e-8 && abs(p.y - y)<1e-8 && abs(p.z - z)<1e-8)); }
-	bool close(GPoint p, double preci = 1.e-5){ return((abs(p.x - x)<preci && abs(p.y - y)<preci && abs(p.z - z)<preci)); }
+	//bool operator==(GPoint p){ return((abs(p.x - x)<1e-8 && abs(p.y - y)<1e-8 && abs(p.z - z)<1e-8)); }
+	//bool close(GPoint p, double preci = 1.e-5){ return((abs(p.x - x)<preci && abs(p.y - y)<preci && abs(p.z - z)<preci)); }
 
 	void point_assign(double xx, double yy, double zz) { x = xx; y = yy; z = zz; }
 	T dot(GPoint p){ return(x*p.x+y*p.y+z*p.z); }
@@ -111,8 +111,8 @@ public:
 	GPoint<double> col2(){ return GPoint<double>(row1.coord_y(), row2.coord_y(), row3.coord_y()); }
 	GPoint<double> col3(){ return GPoint<double>(row1.coord_z(), row2.coord_z(), row3.coord_z()); }
 	Matrix& operator=(const Matrix& x){ row1 = x.row1;  row2 = x.row2; row3 = x.row3; return(*this); }
-	bool operator==(Matrix m){ return((row1 == m.row1 && row2 == m.row2 && row3 == m.row3)); }
-	bool close(Matrix m, double preci = 0.01){ return((row1.close(m.row1, preci) && row2.close(m.row2, preci) && row3.close(m.row3, preci))); }
+	//bool operator==(Matrix m){ return((row1 == m.row1 && row2 == m.row2 && row3 == m.row3)); }
+	//bool close(Matrix m, double preci = 0.01){ return((row1.close(m.row1, preci) && row2.close(m.row2, preci) && row3.close(m.row3, preci))); }
 	Matrix inv()
 	{
 		double determinant = row1.x*(row2.y*row3.z - row3.y*row2.z)
