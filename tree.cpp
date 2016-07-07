@@ -1,7 +1,7 @@
 #include "tree.h"
 
 
-tree::tree(int tsteps):data_fname("data"),final_name("FinalWalk"),ncheck(0) //n is steps
+tree::tree(int tsteps):data_fname("cli_data"),final_name("FinalWalk"),ncheck(0) //n is steps
 {
 	initialize(tsteps);
 }
@@ -88,21 +88,25 @@ void tree::LineInit()
 		nodelist[i].Xe.point_assign(2,0,0);
 		nodelist[i].B.a.assign(1,0,0,0.4,0);
 		nodelist[i].B.b.assign(2,0,0,0.4,0);
+		nodelist[i].Xvector = GPoint<double>(3,0,0);
+		nodelist[i].X2 = 5;
+
 	}
 	for (int i=leafstartid-1;i>=0;i--)
 	{
-		nodelist[i].B = BoxMerge(nodelist[i].lchild->B,nodelist[i].rchild->B,nodelist[i].lchild->Xe,nodelist[i].p);
-		nodelist[i].Xe = nodelist[i].rchild->Xe + nodelist[i].lchild->Xe;
+		UpdateNodeData(nodelist+i);
 	}
 }
 
 void tree::Record()
 {
 	FILE *fptr;
+	char buffer[50]; // <- danger, only storage for 256 characters.
+	sprintf(buffer, "%s_%d", data_fname,nsteps);
 	// record the "data"
 	double endnorm = nodelist[0].Xe.norm();
-	fptr = fopen(data_fname, "a");
-	fprintf(fptr,"%14.10f    %14.10f \n",123.0,endnorm*endnorm);
+	fptr = fopen(buffer, "a");
+	fprintf(fptr,"%14.10f    %14.10f \n",GetRg2(),endnorm*endnorm);
 	fclose(fptr);
 }
 
@@ -174,7 +178,8 @@ bool tree::PivotAttempt()
 {
 	Proposal prop(nsteps);
 	DoPivot(prop.pivot_loc,prop.op);
-	if(CheckPivot(prop))
+	//if(CheckPivot((nsteps+1)/2)==true && CheckPivot(prop.pivot_loc)==false) printf("something is very wrong for dopivot\n");
+	if(CheckPivot(prop.pivot_loc))
 	{
 		DoPivot(prop.pivot_loc,prop.invop);
 		return true;
@@ -212,20 +217,20 @@ inline void tree::DoPivot( int pivot_loc,Matrix p )
 	}
 }
 
-bool tree::CheckPivot( Proposal prop )
+bool tree::CheckPivot(int pivot_loc )
 {
 	node* pn;
-	if (prop.pivot_loc % 2 == 1)
+	if (pivot_loc % 2 == 1)
 	{
-		int pid = zeroid + (prop.pivot_loc-1)/2;
+		int pid = zeroid + (pivot_loc-1)/2;
 		if(pid>nnode-1) pid -= (nsteps+1)/2;
 		pn = nodelist+pid;
 	}
 	else
 	{
-		if(prop.pivot_loc != 0) 
+		if(pivot_loc != 0) 
 		{
-			int pid = zeroid + (prop.pivot_loc)/2;
+			int pid = zeroid + (pivot_loc)/2;
 			if(pid>nnode-1) pid -= (nsteps+1)/2;
 			pn = nodelist+pid-1;     // minus 1 here
 		}
@@ -313,6 +318,13 @@ void tree::UpdateNodeData( node* pn )
 {
 	pn->B = BoxMerge(pn->lchild->B,pn->rchild->B,pn->lchild->Xe,pn->p);
 	pn->Xe = pn->p.dot(pn->rchild->Xe) + pn->lchild->Xe;
+	pn->Xvector = pn->lchild->Xvector + pn->p.dot(pn->rchild->Xvector) + pn->lchild->Xe;
+	pn->X2 = pn->lchild->X2 + pn->rchild->X2 + 2*(pn->lchild->Xe.dot(pn->p.dot(pn->rchild->Xvector))) + pn->rchild->npoint*(pn->lchild->Xe.dot(pn->lchild->Xe));
+}
+
+double tree::GetRg2()
+{
+	return nodelist[0].X2/(nsteps+1)-(nodelist[0].Xvector.dot(nodelist[0].Xvector))/((nsteps+1)*(nsteps+1));
 }
 
 Matrix tree::Proposal::RandMatrix()

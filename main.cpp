@@ -7,9 +7,8 @@ so far this is nothing but a copy of the alg. in Clisby's paper
 
 int main(int argc,char *argv[])
 {
-	tree A(10000-1);
-	A.run();
-
+	tree A(1000-1);
+	A.run(20000,1000,500);
 
 #ifdef _WIN32
 	printf("\n");

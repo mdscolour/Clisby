@@ -29,6 +29,8 @@ public:
 /*	int id;*/
 	Matrix p;
 	GPoint<double> Xe;  //end point
+	GPoint<double> Xvector;
+	double X2;
 	//GPoint<int> Xs;  //start point alway (0,1)
 	box B;
 };
@@ -63,7 +65,7 @@ public:
 
 	Sphere GetStepi(int i);
 
-	int run(int discard=0, int outer=1, int inner=10000);
+	int run(int discard=0, int outer=1, int inner=1);
 
 	int GoNSteps(int num);
 
@@ -71,7 +73,7 @@ public:
 
 	inline void DoPivot(int pivot_loc,Matrix p);
 
-	bool CheckPivot(Proposal prop);
+	bool CheckPivot(int pivot_loc);
 
 	bool Intersect(node* lc,node* rc,GPoint<double>& relXe,Matrix& p);
 
@@ -81,6 +83,8 @@ public:
 		if(pid>nnode-1) pid -= (nsteps+1)/2;
 		return nodelist+pid;
 	}
+
+	double GetRg2();
 
 	Sphere SphereMerge(Sphere& a, Sphere& b);
 
