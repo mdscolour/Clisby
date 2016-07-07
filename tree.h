@@ -19,7 +19,6 @@ class node
 public:
 	//bool IsLeftChild(node* lc){return lc==this;}
 	//bool IsRightChild(){return father->rchild==this;}
-	void print(){printf("%d %d %d %d %d \n",(int)isleaf,npoint,(int)lchild,(int)rchild,(int)father);B.a.print(stdout);B.b.print(stdout);}
 
 	node():isleaf(false),p("identity"){}
 
@@ -83,37 +82,15 @@ public:
 		return nodelist+pid;
 	}
 
-	Sphere SphereMerge(Sphere& a, Sphere& b)
-	{
-		GPoint<double> c = b.center()-a.center();
-		double r = (c.norm()+a.r+b.r)/2.0;
-		Sphere rc = a+c*((r-a.r)/c.norm());
-		return Sphere(rc.x, rc.y, rc.z, r, b.k);
-	}
+	Sphere SphereMerge(Sphere& a, Sphere& b);
 
-	bool SphereIntersec(Sphere& a, Sphere& b) {return ((a.center()-b.center()).norm()> (a.r+b.r))? false:true;}
+	bool SphereIntersec(Sphere& a, Sphere& b);
 
-	box BoxMerge(box& b1,box& b2,GPoint<double>& b1Xe,Matrix& p)
-	{
-		box t; 
-		t.a=SphereMerge(b1.a,b1.b); 
-		t.b=p.dot(SphereMerge(b2.a,b2.b))+b1Xe;
-		return t;
-	}
-	bool BoxIntersec(box& b1,box& b2,GPoint<double>& b1Xe,Matrix& p)  // true is intersected
-	{
-		if(SphereIntersec(b1.b,p.dot(b2.a)+b1Xe)) return true;
-		if(SphereIntersec(b1.b,p.dot(b2.b)+b1Xe)) return true;
-		if(SphereIntersec(b1.a,p.dot(b2.b)+b1Xe)) return true;
-		if(SphereIntersec(b1.a,p.dot(b2.a)+b1Xe)) return true;
-		return false;
-	}
+	box BoxMerge(box& b1,box& b2,GPoint<double>& b1Xe,Matrix& p);
 
-	void UpdateNodeData(node* pn)
-	{
-		pn->B = BoxMerge(pn->lchild->B,pn->rchild->B,pn->lchild->Xe,pn->p);
-		pn->Xe = pn->p.dot(pn->rchild->Xe) + pn->lchild->Xe;
-	}
+	bool BoxIntersec(box& b1,box& b2,GPoint<double>& b1Xe,Matrix& p);  // true is intersected
+
+	void UpdateNodeData(node* pn);
 	
 	int zeroid;
 	int ncheck;

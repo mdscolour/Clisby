@@ -274,6 +274,40 @@ bool tree::Intersect( node* lc,node* rc,GPoint<double>& relXe,Matrix& p )
 	}
 }
 
+inline bool tree::SphereIntersec( Sphere& a, Sphere& b )
+{return ((a.center()-b.center()).norm()> (a.r+b.r))? false:true;}
+
+inline bool tree::BoxIntersec( box& b1,box& b2,GPoint<double>& b1Xe,Matrix& p )
+{
+	if(SphereIntersec(b1.b,p.dot(b2.a)+b1Xe)) return true;
+	if(SphereIntersec(b1.b,p.dot(b2.b)+b1Xe)) return true;
+	if(SphereIntersec(b1.a,p.dot(b2.b)+b1Xe)) return true;
+	if(SphereIntersec(b1.a,p.dot(b2.a)+b1Xe)) return true;
+	return false;
+}
+
+inline Sphere tree::SphereMerge( Sphere& a, Sphere& b )
+{
+	GPoint<double> c = b.center()-a.center();
+	double r = (c.norm()+a.r+b.r)/2.0;
+	Sphere rc = a+c*((r-a.r)/c.norm());
+	return Sphere(rc.x, rc.y, rc.z, r, b.k);
+}
+
+inline box tree::BoxMerge( box& b1,box& b2,GPoint<double>& b1Xe,Matrix& p )
+{
+	box t; 
+	t.a=SphereMerge(b1.a,b1.b); 
+	t.b=p.dot(SphereMerge(b2.a,b2.b))+b1Xe;
+	return t;
+}
+
+inline void tree::UpdateNodeData( node* pn )
+{
+	pn->B = BoxMerge(pn->lchild->B,pn->rchild->B,pn->lchild->Xe,pn->p);
+	pn->Xe = pn->p.dot(pn->rchild->Xe) + pn->lchild->Xe;
+}
+
 Matrix tree::Proposal::RandMatrix()
 {
 	return RefMatrix().dot(RMatrix());
